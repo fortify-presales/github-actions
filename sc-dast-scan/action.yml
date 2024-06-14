@@ -1,38 +1,27 @@
-name: "FoD DAST Scan"
-description: "Runs a Fortify on Demand DAST Automated Scan"
+name: "ScanCentral DAST Scan"
+description: "Runs a ScanCentral DAST Scan"
 inputs:
-  working_directory:
-    required: false
-    description: "Relative directory (from root of repository) from where to run commands"
-    default: "."
-  fod_url:
-    required: false
-    description: "FoD API URI"
-    default: "https://ams.fortify.com"
-  fod_api_url:
-    required: false
-    description: "FoD API URI"
-    default: "https://api.ams.fortify.com"
-  fod_client_id:
+  ssc_url:
     required: true
-    description: "FoD API Client Id"
-  fod_client_secret:
+    description: "SSC URI"
+  ssc_token:
     required: true
-    description: "FoD API Client Secret"
-  fod_app_name:
+    description: "SSC CI Token"
+  scan_settings_id:
     required: true
-    description: "FoD Application Name"
-  fod_release_name:
-    required: true
-    description: "FoD Release Name"
-  fod_parent_release_name:
+    description: "ScanCentral DAST Scan Settings Id"
+  scan_name:
     required: false
-    description: "FoD Parent Release Name"
-    default: "dev"
+    description: "The name of the scan (displayed in UI)"
+    default: "GitHub Actions Initiated DAST Scan"
+  do_wait:
+    required: false
+    description: "Whether to wait for the scan to finish or not"
+    default: "false"
 outputs:
-  fod_scan_id:
-    description: "FoD Scan Id"
-    value: ${{ steps.fod-sast-scan.outputs.fod_scan_id }}
+  scdast_scan_id:
+    description: "ScanCentral DAST Scan Id"
+    value: ${{ steps.scdast-scan.outputs.scdast_scan_id }}
 runs:
   using: "composite"
   steps:
@@ -48,45 +37,31 @@ runs:
       with:
         export-path: true
         fcli: latest
-    # Login to Fortify on Demand fcli session
-    - name: Login fcli
-      working-directory: ${{ env.BASE_DIR }}
+    # Login to ScanCentral DAST fcli session
+    - name: Login
       shell: bash
       run: |
-        fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
+        fcli sc-dast session login --ssc-url $SSC_URI -t $SSC_TOKEN --session github-actions
       env:
-        FOD_API_URI: ${{ inputs.fod_api_url }}
-        FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
-        FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
-    # Create a new Fortify on Demand release for GitHub branch
-    - name: Create FoD release
-      id: create-release
-      working-directory: ${{ env.BASE_DIR }}
+        SSC_URI: ${{ inputs.ssc_url }}
+        SSC_TOKEN: ${{ inputs.ssc_token }}
+    # Start ScanCentral DAST scan and optionally wait until results complete.
+    - name: Perform ScanCentral DAST scan
+      id: scdast-scan
       shell: bash
       run: |
-        fcli fod release list --app "$FOD_APP_NAME" --session github-actions
-        echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
-        RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-        echo "::debug::Created/Using fod_release_id=${RELID}"
-        echo "release_id=${RELID}" >> $GITHUB_OUTPUT
+        fcli sc-dast start -n $SCAN_NAME -s $SETTINGS_ID --store curScan --session github-actions
+        echo "scdast_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
+        if [ $DO_WAIT ]
+        then
+            fcli sc-dast-scan wait-for ::curScan:: --session github-actions
+        fi    
       env:
-        FOD_APP_NAME: ${{ inputs.fod_app_name }}
-        FOD_RELEASE_NAME: ${{ inputs.fod_release_name }}
-        FOD_PARENT_RELEASE_NAME: ${{ inputs.fod_parent_release_name }}
-    # Start Fortify on Demand DAST scan and wait until results complete.
-    - name: Perform FoD DAST scan
-      id: fod-dast-scan
-      working-directory: ${{ env.BASE_DIR }}
+        SCAN_NAME: ${{ inputs.scan_name }}
+        SETTINGS_ID: ${{ inputs.scan_settings_id }}
+        DO_WAIT: ${{ inputs.do_wait }}
+    # Logout/Close ScanCentral DAST fcli session
+    - name: Logout
       shell: bash
       run: |
-        fcli fod dast-scan start --release "${FOD_RELEASE_NAME}" --store curScan --session github-actions
-        sleep 10
-        echo "fod_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
-        fcli fod dast-scan wait-for ::curScan:: --session github-actions
-      env:
-        FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
-    # Logout/Close Fortify on Demand fcli session
-    - name: Logout fcli
-      shell: bash
-      run: |
-        fcli fod session logout --session github-actions
+        fcli sc-dast session logout --session github-actions
