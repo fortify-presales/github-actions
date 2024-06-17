@@ -1,0 +1,53 @@
+name: "Verify SSC Security Policy"
+description: "Verify that the security policy in Software Security Center has been met for the application/version"
+inputs:
+  ssc_url:
+    required: true
+    description: "SSC URI"
+  ssc_token:
+    required: true
+    description: "SSC CI Token"
+  ssc_app_name:
+    required: true
+    description: "SSC Application Name"
+  ssc_appversion_name:
+    required: true
+    description: "SSC Application Version Name"
+runs:
+  using: "composite"
+  steps:
+    # Java is required to run the various Fortify utilities.
+    # Setup JDK 11 on host
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+    # Install Fortify tools
+    - name: Setup Fortify tools
+      uses: fortify/github-action/setup@v1
+      with:
+        export-path: true
+        fcli: latest
+    # Login to ScanCentral DAST fcli session
+    - name: Login
+      shell: bash
+      run: |
+        fcli ssc session login --ssc-url $SSC_URI -t $SSC_TOKEN --session github-actions
+      env:
+        SSC_URI: ${{ inputs.ssc_url }}
+        SSC_TOKEN: ${{ inputs.ssc_token }}
+    # Check Security Policy of the Software Security Center Application Version to determine success/failure
+    - name: Verify Security Policy
+      id: verify-security-policy
+      shell: bash
+      run: |
+        fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions >> $GITHUB_STEP_SUMMARY
+        fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions
+      env: 
+        SSC_APP_NAME: ${{ inputs.ssc_app_name }}
+        SSC_APPVER_NAME: ${{ inputs.ssc_appversion_name }}
+    # Logout/Close ScanCentral DAST fcli session
+    - name: Logout
+      shell: bash
+      run: |
+        fcli ssc session logout --session github-actions
