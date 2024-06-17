@@ -50,11 +50,11 @@ runs:
       id: scdast-scan
       shell: bash
       run: |
-        fcli sc-dast start -n "$SCAN_NAME" -s $SETTINGS_ID --store curScan --session github-actions
+        fcli sc-dast scan start -n "$SCAN_NAME" -s $SETTINGS_ID --store curScan --session github-actions
         echo "scdast_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
         if [ $DO_WAIT ]
         then
-            fcli sc-dast-scan wait-for ::curScan:: --session github-actions
+            fcli sc-dast scan wait-for ::curScan:: --session github-actions
         fi    
       env:
         SCAN_NAME: ${{ inputs.scan_name }}

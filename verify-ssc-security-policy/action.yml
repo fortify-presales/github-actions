@@ -33,6 +33,8 @@ runs:
       shell: bash
       run: |
         fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
+        # Bug we need a default session for actions to work currently
+        fcli ssc session login --url $SSC_URI -t $SSC_TOKEN
       env:
         SSC_URI: ${{ inputs.ssc_url }}
         SSC_TOKEN: ${{ inputs.ssc_token }}
@@ -51,3 +53,6 @@ runs:
       shell: bash
       run: |
         fcli ssc session logout --session github-actions
+        # Bug we need a default session for actions to work currently
+        fcli ssc session logout
+
