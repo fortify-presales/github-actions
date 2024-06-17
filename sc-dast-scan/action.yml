@@ -64,4 +64,4 @@ runs:
     - name: Logout
       shell: bash
       run: |
-        fcli sc-dast session logout --session github-actions
+        fcli sc-dast session logout --no-revoke-token --session github-actions
