@@ -13,6 +13,10 @@ inputs:
   ssc_appversion_name:
     required: true
     description: "SSC Application Version Name"
+  ssc_filterset_names:
+    required: false
+    description: "SSC Filter Set to use for listing vulnerabilities"
+    default: "Security Auditor View"    
 runs:
   using: "composite"
   steps:
@@ -32,8 +36,8 @@ runs:
     - name: Login
       shell: bash
       run: |
-        fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
-        # Bug we need a default session for actions to work currently
+        #fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
+        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
         fcli ssc session login --url $SSC_URI -t $SSC_TOKEN
       env:
         SSC_URI: ${{ inputs.ssc_url }}
@@ -43,16 +47,20 @@ runs:
       id: verify-security-policy
       shell: bash
       run: |
-        fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions >> $GITHUB_STEP_SUMMARY
-        fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions
+        #fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --filtersets "${SSC_FILTER_SET_NAMES}" --session github-actions >> $GITHUB_STEP_SUMMARY
+        #fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions
+        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
+        fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --filtersets "${SSC_FILTER_SET_NAMES}" >> $GITHUB_STEP_SUMMARY
+        fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}"
       env: 
         SSC_APP_NAME: ${{ inputs.ssc_app_name }}
         SSC_APPVER_NAME: ${{ inputs.ssc_appversion_name }}
+        SSC_FILTER_SET_NAMES: ${{ inputs.ssc_filterset_names }}
     # Logout/Close ScanCentral DAST fcli session
     - name: Logout
       shell: bash
       run: |
-        fcli ssc session logout --no-revoke-token --session github-actions
-        # Bug we need a default session for actions to work currently
+        #fcli ssc session logout --no-revoke-token --session github-actions
+        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
         fcli ssc session logout --no-revoke-token
 
