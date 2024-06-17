@@ -32,7 +32,7 @@ runs:
     - name: Login
       shell: bash
       run: |
-        fcli ssc session login --ssc-url $SSC_URI -t $SSC_TOKEN --session github-actions
+        fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
       env:
         SSC_URI: ${{ inputs.ssc_url }}
         SSC_TOKEN: ${{ inputs.ssc_token }}
