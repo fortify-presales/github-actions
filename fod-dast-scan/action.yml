@@ -80,8 +80,8 @@ runs:
       shell: bash
       run: |
         fcli fod dast-scan start --release "${FOD_RELEASE_NAME}" --store curScan --session github-actions
-        sleep 10
-        echo "fod_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
+        sleep 10        
+        echo "fod_scan_id=$(fcli util var contents curScan -o 'expr={scanId}')" >> $GITHUB_OUTPUT
         fcli fod dast-scan wait-for ::curScan:: --session github-actions
       env:
         FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
