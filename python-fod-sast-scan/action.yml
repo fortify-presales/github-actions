@@ -54,6 +54,7 @@ runs:
     - name: Activate virtualenv
       shell: bash
       run: |
+        pip -m venv .venv
         . .venv/bin/activate
         echo PATH=$PATH >> $GITHUB_ENV
     - name: Install dependencies
