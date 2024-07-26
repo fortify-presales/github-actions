@@ -52,6 +52,7 @@ runs:
       with:
         python-version: ${{ inputs.python_version }}
     - name: Activate virtualenv
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         python -m venv .venv
@@ -100,6 +101,7 @@ runs:
     # Create FoD upload package using ScanCentral "package" action
     - name: Package Code
       uses: fortify/github-action/package@v1
+      working-directory: ${{ inputs.working_directory }}
       env:
         EXTRA_PACKAGE_OPTS: -bt none --python-virtual-env .venv
         PACKAGE_FILE: "package"
