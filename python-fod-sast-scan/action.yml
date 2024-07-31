@@ -103,7 +103,7 @@ runs:
     - name: Package Code
       uses: fortify/github-action/package@v1
       env:
-        EXTRA_PACKAGE_OPTS: -bt none --python-virtual-env .venv
+        EXTRA_PACKAGE_OPTS: -bt none --python-virtual-env .venv -oss
         PACKAGE_FILE: "package"
     # Start Fortify on Demand SAST scan and wait until results complete.
     - name: Perform FoD SAST scan
