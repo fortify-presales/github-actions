@@ -44,7 +44,7 @@ runs:
         java-version: '11'
     # Install Fortify tools
     - name: Setup Fortify tools
-      uses: fortify/github-action/setup@v1
+      uses: edguerreros/github-action/setup@main
       with:
         export-path: true
         fcli: latest
