@@ -57,7 +57,7 @@ runs:
         gradle-version: ${{ inputs.gradle_version }}
     # Install Fortify tools
     - name: Setup Fortify tools
-      uses: fortify/github-action/setup@v1
+      uses: edguerreros/github-action/setup@v1
       with:
         export-path: true
         fcli: latest
@@ -90,7 +90,7 @@ runs:
     # TODO: uncomment when fod-sast-scan has been updated
     # Run FoD SAST Scan    
     #- name: Run FoD SAST Scan
-    #  uses: fortify/github-action/fod-sast-scan@v1
+    #  uses: edguerreros/github-action/fod-sast-scan@v1
     #  env:
     #    FOD_URL: ${{ inputs.fod_api_url }}
     #    FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
@@ -103,7 +103,7 @@ runs:
         # TOOL_DEFINITIONS: https://ftfy.mycompany.com/tool-definitions/v1/tool-definitions.yaml.zip
     # Create FoD upload package using ScanCentral "package" action
     - name: Package Code + Dependencies
-      uses: fortify/github-action/package@v1
+      uses: edguerreros/github-action/package@v1
       env:
         EXTRA_PACKAGE_OPTS: -bt gradle -bf "${BUILD_FILE}" -bc "${BUILD_COMMAND}" -oss
         PACKAGE_FILE: "package"
@@ -125,7 +125,7 @@ runs:
         FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
     # Export FoD vulnerability data to GitHub
     - name: Export FoD vulnerability data to GitHub
-      uses: fortify/github-action/fod-export@v1
+      uses: edguerreros/github-action/fod-export@v1
       env:
         FOD_URL: ${{ inputs.fod_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
