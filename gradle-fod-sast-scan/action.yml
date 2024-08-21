@@ -101,36 +101,6 @@ runs:
         DO_WAIT: false
         DO_EXPORT: true
         # TOOL_DEFINITIONS: https://ftfy.mycompany.com/tool-definitions/v1/tool-definitions.yaml.zip
-    # Create FoD upload package using ScanCentral "package" action
-    - name: Package Code + Dependencies
-      uses: edguerreros/github-action/package@main
-      env:
-        EXTRA_PACKAGE_OPTS: -bt gradle -bf "${BUILD_FILE}" -bc "${BUILD_COMMAND}" -oss
-        PACKAGE_FILE: "package"
-        BUILD_FILE: "build.gradle"
-        BUILD_COMMAND: ${{ inputs.gradle_build_command }}
-    # Start Fortify on Demand SAST scan and wait until results complete.
-    - name: Perform FoD SAST scan
-      id: fod-sast-scan
-      working-directory: ${{ env.BASE_DIR }}
-      shell: bash
-    #  fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
-      run: |
-        echo "fod_scan_id=$(fcli util var contents curScan -o 'expr={scanId}')" >> $GITHUB_OUTPUT
-        sleep 10
-        fcli fod sast-scan wait-for ::curScan:: --session github-actions
-      env:
-        PACKAGE_FILE: "package.zip"
-        FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
-        FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-    # Export FoD vulnerability data to GitHub
-    - name: Export FoD vulnerability data to GitHub
-      uses: edguerreros/github-action/fod-export@main
-      env:
-        FOD_URL: ${{ inputs.fod_url }}
-        FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
-        FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
-        FOD_RELEASE: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
     # Logout/Close Fortify on Demand fcli session
     - name: Logout fcli
       shell: bash
