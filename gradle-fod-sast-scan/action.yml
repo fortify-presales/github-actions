@@ -115,7 +115,7 @@ runs:
       working-directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
-        fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+      #  fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
         sleep 10
         echo "fod_scan_id=$(fcli util var contents curScan -o 'expr={scanId}')" >> $GITHUB_OUTPUT
         fcli fod sast-scan wait-for ::curScan:: --session github-actions
