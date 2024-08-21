@@ -98,7 +98,7 @@ runs:
         # EXTRA_FOD_LOGIN_OPTS: --socket-timeout=60s
         FOD_RELEASE: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
         EXTRA_PACKAGE_OPTS: -oss
-        DO_WAIT: false
+        DO_WAIT: true
         DO_EXPORT: true
         # TOOL_DEFINITIONS: https://ftfy.mycompany.com/tool-definitions/v1/tool-definitions.yaml.zip
     # Logout/Close Fortify on Demand fcli session
