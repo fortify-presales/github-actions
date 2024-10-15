@@ -61,7 +61,10 @@ runs:
       with:
         export-path: true
         fcli: latest
+        sc-client: latest
+        fod-uploader: skip
         vuln-exporter: latest
+        bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
       working-directory: ${{ env.BASE_DIR }}
