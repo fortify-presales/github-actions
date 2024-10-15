@@ -14,7 +14,7 @@ inputs:
   get_fod_release_id:
     required: false
     description: "Optionally set Fortify Release Id from FoD"
-    default: false
+    default: true
   get_ssc_appver_id:
     required: false
     description: "Optionally set Fortify Release Id from SSC"
