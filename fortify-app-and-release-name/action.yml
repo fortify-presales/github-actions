@@ -18,7 +18,17 @@ inputs:
   get_ssc_appver_id:
     required: false
     description: "Optionally set Fortify Release Id from SSC"
-    default: false    
+    default: false   
+  fod_api_url:
+    required: false
+    description: "FoD API URI"
+    default: "https://api.ams.fortify.com"
+  fod_client_id:
+    required: true
+    description: "FoD API Client Id"
+  fod_client_secret:
+    required: true
+    description: "FoD API Client Secret"    
 outputs:
   app_name:
     description: "Fortify Application Name"
