@@ -1,5 +1,5 @@
 name: "Fortify App and Release Name"
-description: "Set the Fortify App and Release Name based on branch/PR and overrides"
+description: "Set the Fortify App and Release Name based on GitHub branch/PR and overrides"
 inputs:
   default_fortify_app_name:
     required: true
@@ -24,11 +24,18 @@ inputs:
     description: "FoD API URI"
     default: "https://api.ams.fortify.com"
   fod_client_id:
-    required: true
+    required: false
     description: "FoD API Client Id"
   fod_client_secret:
-    required: true
-    description: "FoD API Client Secret"    
+    required: false
+    description: "FoD API Client Secret"
+  ssc_url:
+    required: false
+    description: "Fortify SSC URL"
+    default: "https://ssc.uat.fortifyhosted.net"
+  ssc_token:
+    required: false
+    description: "Fortify SSC Token (CIToken)"
 outputs:
   app_name:
     description: "Fortify Application Name"
@@ -58,7 +65,7 @@ runs:
         java-version: '17'
     # Install Fortify tools
     - name: Setup Fortify tools
-      #if: ${{ inputs.get_fod_release_id == true || inputs.get_ssc_appver_id == true }}
+      if: ${{ inputs.get_fod_release_id || inputs.get_ssc_appver_id }}
       uses: fortify/github-action/setup@v1
       with:
         export-path: true
@@ -97,7 +104,7 @@ runs:
         PARENT_BRANCH: "main" # hardcoded for now until we find a consistent way of calculating it
     - name: Set Fortify Release Id
       id: fortify-release-id
-      #if: ${{ inputs.get_fod_release_id == true || inputs.get_ssc_appver_id == true }}
+      if: ${{ inputs.get_fod_release_id || inputs.get_ssc_appver_id }}
       shell: bash
       run: |
         echo "inputs.get_fod_release_id = '${GET_FOD_RELEASE_ID}'"
@@ -105,19 +112,16 @@ runs:
             echo "::debug::Getting FoD Release Id for: '$APP_RELEASE'"       
             fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
             release_id=$(fcli fod release get -o 'expr={releaseId}' "$APP_RELEASE" --session github-actions)
-            echo "::debug::release_id=$release_id' $APP_RELEASE --session github-actions)"         
-            echo "release_id=$release_id" >> $GITHUB_OUTPUT
             fcli fod session logout --session github-actions
         fi
         if [[ "$GET_SSC_APPVER_ID" == "true" ]]; then
             echo "::debug::Getting SSC App Version Id for: '$APP_RELEASE'"
             fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
-            echo "::debug::release_id=$(fcli ssc appversion get -o 'expr={id}' --session github-actions)"         
-            echo "release_id=$(fcli ssc appversion get -o 'expr={id}' --session github-actions)" >> $GITHUB_OUTPUT
+            release_id=$(fcli ssc appversion get -o 'expr={id}' "$APP_RELEASE" --session github-actions)
             fcli ssc session logout --no-revoke-token --session github-actions
-            echo "::debug::release_id=${RELEASE_ID}"         
-            echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
         fi
+        echo "::debug::release_id=${RELEASE_ID}"         
+        echo "release_id=$release_id" >> $GITHUB_OUTPUT
       env:
         GET_FOD_RELEASE_ID: ${{ inputs.get_fod_release_id }}
         GET_SSC_APPVER_ID: ${{ inputs.get_ssc_appver_id }}
@@ -128,7 +132,7 @@ runs:
         SSC_URI: ${{ inputs.ssc_url }}
         SSC_TOKEN: ${{ inputs.ssc_token }}
         
-        
+    # TBD
     #- name: Get branch names.
     #  id: branch-names
     #  uses: tj-actions/branch-names@v8
