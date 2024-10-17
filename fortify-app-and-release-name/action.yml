@@ -120,7 +120,7 @@ runs:
       env:
         GET_FOD_RELEASE_ID: ${{ inputs.get_fod_release_id }}
         GET_SSC_APPVER_ID: ${{ inputs.get_ssc_appver_id }}
-        APP_RELEASE: ${{ format('{0}:{1}', steps.fortify-app-name.outputs.app_name, steps.fortify-release-name.outputs.release_name) }}
+        APP_RELEASE: ${{ format('"{0}:{1}"', steps.fortify-app-name.outputs.app_name, steps.fortify-release-name.outputs.release_name) }}
         FOD_API_URI: ${{ inputs.fod_api_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
         FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
