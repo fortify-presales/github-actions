@@ -104,8 +104,9 @@ runs:
         if [[ "$GET_FOD_RELEASE_ID" == "true" ]]; then
             echo "::debug::Getting FoD Release Id for: '$APP_RELEASE'"       
             fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
-            echo "::debug::release_id=$(fcli fod release get -o 'expr={releaseId}' $APP_RELEASE --session github-actions)"         
-            echo "release_id=$(fcli fod release get -o 'expr={releaseId}' $APP_RELEASE --session github-actions)" >> $GITHUB_OUTPUT
+            release_id=$(fcli fod release get -o 'expr={releaseId}' "$APP_RELEASE" --session github-actions)
+            echo "::debug::release_id=$release_id' $APP_RELEASE --session github-actions)"         
+            echo "release_id=$release_id" >> $GITHUB_OUTPUT
             fcli fod session logout --session github-actions
         fi
         if [[ "$GET_SSC_APPVER_ID" == "true" ]]; then
@@ -120,7 +121,7 @@ runs:
       env:
         GET_FOD_RELEASE_ID: ${{ inputs.get_fod_release_id }}
         GET_SSC_APPVER_ID: ${{ inputs.get_ssc_appver_id }}
-        APP_RELEASE: ${{ format('"{0}:{1}"', steps.fortify-app-name.outputs.app_name, steps.fortify-release-name.outputs.release_name) }}
+        APP_RELEASE: ${{ format('{0}:{1}', steps.fortify-app-name.outputs.app_name, steps.fortify-release-name.outputs.release_name) }}
         FOD_API_URI: ${{ inputs.fod_api_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
         FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
