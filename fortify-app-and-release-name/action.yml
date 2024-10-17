@@ -87,9 +87,10 @@ runs:
         PARENT_BRANCH: "main" # hardcoded for now until we find a consistent way of calculating it
     - name: Set Fortify Release Id
       id: fortify-release-id
-      if: ${{ inputs.get_fod_release_id == true || inputs.get_ssc_appver_id == true }}
+      #if: ${{ inputs.get_fod_release_id == true || inputs.get_ssc_appver_id == true }}
       shell: bash
       run: |
+        echo "inputs.get_fod_release_id = '${GET_FOD_RELEASE_ID}'"
         if [[ "$GET_FOD_RELEASE_ID" == "true" ]]; then
             echo "::debug::Getting FoD Release Id for: '$APP_RELEASE'"       
             fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
