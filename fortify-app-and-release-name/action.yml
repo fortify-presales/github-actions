@@ -104,8 +104,8 @@ runs:
         if [[ "$GET_FOD_RELEASE_ID" == "true" ]]; then
             echo "::debug::Getting FoD Release Id for: '$APP_RELEASE'"       
             fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
-            echo "::debug::release_id=$(fcli fod release get -o 'expr={releaseId}' --session github-actions)"         
-            echo "release_id=$(fcli fod release get -o 'expr={releaseId}' --session github-actions)" >> $GITHUB_OUTPUT
+            echo "::debug::release_id=$(fcli fod release get -o 'expr={releaseId}' $APP_RELEASE --session github-actions)"         
+            echo "release_id=$(fcli fod release get -o 'expr={releaseId}' $APP_RELEASE --session github-actions)" >> $GITHUB_OUTPUT
             fcli fod session logout --session github-actions
         fi
         if [[ "$GET_SSC_APPVER_ID" == "true" ]]; then
