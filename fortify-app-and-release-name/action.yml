@@ -14,7 +14,7 @@ inputs:
   get_fod_release_id:
     required: false
     description: "Optionally set Fortify Release Id from FoD"
-    default: true
+    default: false
   get_ssc_appver_id:
     required: false
     description: "Optionally set Fortify Release Id from SSC"
@@ -90,14 +90,14 @@ runs:
       if: ${{ inputs.get_fod_release_id == true || inputs.get_ssc_appver_id == true }}
       shell: bash
       run: |
-        if [[ "$GET_FOD_RELEASE_ID" = true ]]; then
+        if [[ "$GET_FOD_RELEASE_ID" == "true" ]]; then
             echo "::debug::Getting FoD Release Id for: '$APP_RELEASE'"       
             fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
             echo "::debug::release_id=$(fcli fod release get -o 'expr={releaseId}' --session github-actions)"         
             echo "release_id=$(fcli fod release get -o 'expr={releaseId}' --session github-actions)" >> $GITHUB_OUTPUT
             fcli fod session logout --session github-actions
         fi
-        if [[ "$GET_SSC_APPVER_ID" = true ]]; then
+        if [[ "$GET_SSC_APPVER_ID" == "true" ]]; then
             echo "::debug::Getting SSC App Version Id for: '$APP_RELEASE'"
             fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
             echo "::debug::release_id=$(fcli ssc appversion get -o 'expr={id}' --session github-actions)"         
