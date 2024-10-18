@@ -24,7 +24,7 @@ inputs:
 outputs:
   release_id:
     description: "Fortify Release Id"
-    value: ${{ steps.fortify-release-id.outputs.release_id }}
+    value: ${{ steps.create-release.outputs.release_id }}
 runs:
   using: "composite"
   steps:
