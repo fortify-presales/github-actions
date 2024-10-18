@@ -1,0 +1,87 @@
+name: "FoD Setup Release"
+description: "Make sure a FoD release is defined and configured and create it if not"
+inputs:
+  fod_app_name:
+    required: true
+    description: "FoD Application Name"
+  fod_release_name:
+    required: true
+    description: "FoD Release Name"
+  fod_parent_release_name:
+    required: false
+    description: "FoD Parent Release Name"
+    default: "main"
+  fod_api_url:
+    required: false
+    description: "FoD API URI"
+    default: "https://api.ams.fortify.com"
+  fod_client_id:
+    required: false
+    description: "FoD API Client Id"
+  fod_client_secret:
+    required: false
+    description: "FoD API Client Secret"
+outputs:
+  release_id:
+    description: "Fortify Release Id"
+    value: ${{ steps.fortify-release-id.outputs.release_id }}
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        # Fetch at least the immediate parents so that if this is a pull request then we can checkout the head.
+        fetch-depth: 2
+        
+    # Java is required to run the various Fortify utilities.
+    # Setup JDK 17 on host
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    # Install Fortify tools
+    - name: Setup Fortify tools
+      uses: fortify/github-action/setup@v1
+      with:
+        export-path: true
+        fcli: latest
+        sc-client: skip
+        fod-uploader: skip
+        vuln-exporter: skip
+        bugtracker-utility: skip
+        
+    # Login to Fortify on Demand fcli session
+    - name: Login fcli
+      working-directory: ${{ env.BASE_DIR }}
+      shell: bash
+      run: |
+        fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
+      env:
+        FOD_API_URI: ${{ inputs.fod_api_url }}
+        FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
+        FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
+        
+    # Create a new Fortify on Demand release for GitHub branch
+    - name: Create FoD release
+      id: create-release
+      shell: bash
+      run: |
+        fcli fod release list --app "$FOD_APP_NAME" --session github-actions
+        echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
+        RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
+        echo "::debug::Created/Using fod_release_id=${RELID}"
+        echo "release_id=${RELID}" >> $GITHUB_OUTPUT
+      env:
+        FOD_APP_NAME: ${{ inputs.fod_app_name }}
+        FOD_RELEASE_NAME: ${{ inputs.fod_release_name }}
+        FOD_PARENT_RELEASE_NAME: ${{ inputs.fod_parent_release_name }}
+    
+    # Logout/Close Fortify on Demand fcli session
+    - name: Logout fcli
+      shell: bash
+      run: |
+        fcli fod session logout --session github-actions
+        
+
