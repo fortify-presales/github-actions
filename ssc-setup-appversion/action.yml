@@ -13,6 +13,10 @@ inputs:
   ssc_token:
     required: true
     description: "SSC CI Token"
+  ssc_issue_template:
+    required: false
+    descripton: "The name of the Issue Template to use for the Application Version"
+    default: "Prioritized-HighRisk-Project-Template"
 outputs:
   appversion_id:
     description: "SSC AppVersion Id"
@@ -61,13 +65,14 @@ runs:
       shell: bash
       run: |
         fcli ssc av list -q "application.name=='$SSC_APP_NAME'" --session github-actions
-        echo fcli ssc av create "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --description "Created automatically from GitHub" --auto-required-attrs --skip-if-exists -o expr="{id}" --session github-actions
-        APPVER_ID=$(fcli ssc av create "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --description "Created automatically from GitHub" --auto-required-attrs --skip-if-exists -o expr="{id}" --session github-actions)
+        echo fcli ssc av create "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --description "Created automatically from GitHub" --auto-required-attrs --skip-if-exists --issue-template "${SSC_ISSUE_TEMPLATE}" -o expr="{id}" --session github-actions
+        APPVER_ID=$(fcli ssc av create "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --description "Created automatically from GitHub" --auto-required-attrs --skip-if-exists --issue-template "${SSC_ISSUE_TEMPLATE}" -o expr="{id}" --session github-actions)
         echo "::debug::Created/Using appversion_id=${APPVER_ID}"
         echo "appversion_id=${APPVER_ID}" >> $GITHUB_OUTPUT
       env:
         SSC_APP_NAME: ${{ inputs.ssc_app_name }}
         SSC_APPVER_NAME: ${{ inputs.ssc_appversion_name }}
+        SSC_ISSUE_TEMPLATE: ${{ inputs.ssc_issue_template }}
     
     # Logout/Close SSC session
     - name: Logout fcli
