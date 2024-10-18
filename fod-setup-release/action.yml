@@ -71,7 +71,7 @@ runs:
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
         echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
         RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-        echo "::debug::Created/Using fod_release_id=${RELID}"
+        echo "::debug::Created/Using release_id=${RELID}"
         echo "release_id=${RELID}" >> $GITHUB_OUTPUT
       env:
         FOD_APP_NAME: ${{ inputs.fod_app_name }}
