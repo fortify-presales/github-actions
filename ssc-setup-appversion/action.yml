@@ -65,7 +65,6 @@ runs:
         APPVER_ID=$(fcli ssc av create "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --description "Created automatically from GitHub" --auto-required-attrs --skip-if-exists -o expr="{id}" --session github-actions)
         echo "::debug::Created/Using appversion_id=${APPVER_ID}"
         echo "appversion_id=${APPVER_ID}" >> $GITHUB_OUTPUT
-      id: create_ssc_release
       env:
         SSC_APP_NAME: ${{ inputs.ssc_app_name }}
         SSC_APPVER_NAME: ${{ inputs.ssc_appver_name }}
