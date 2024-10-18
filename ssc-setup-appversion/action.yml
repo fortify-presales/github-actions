@@ -1,5 +1,5 @@
-name: "FoD Setup Release"
-description: "Make sure a FoD release is defined and configured and create it if not"
+name: "SSC Setup Application Version"
+description: "Make sure an SSC Application Version is defined and configured and create it if not"
 inputs:
   ssc_app_name:
     required: true
@@ -14,7 +14,7 @@ inputs:
     required: true
     description: "SSC CI Token"
 outputs:
-  release_id:
+  appversion_id:
     description: "SSC AppVersion Id"
     value: ${{ steps.create-appversion.outputs.appversion_id }}
 runs:
