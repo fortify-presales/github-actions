@@ -67,7 +67,7 @@ runs:
         echo "appversion_id=${APPVER_ID}" >> $GITHUB_OUTPUT
       env:
         SSC_APP_NAME: ${{ inputs.ssc_app_name }}
-        SSC_APPVER_NAME: ${{ inputs.ssc_appver_name }}
+        SSC_APPVER_NAME: ${{ inputs.ssc_appversion_name }}
     
     # Logout/Close SSC session
     - name: Logout fcli
