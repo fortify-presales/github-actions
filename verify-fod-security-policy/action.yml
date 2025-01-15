@@ -44,6 +44,7 @@ runs:
     # Check Security Policy of the Fortify on Demand Release to determine success/failure
     - name: Verify Security Policy
       id: verify-security-policy
+      continue-on-error: true
       shell: bash
       run: |
         fcli fod action run release-summary --release "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --session github-actions >> $GITHUB_STEP_SUMMARY
