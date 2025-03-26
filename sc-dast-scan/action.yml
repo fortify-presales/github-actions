@@ -41,7 +41,7 @@ runs:
     - name: Login
       shell: bash
       run: |
-        fcli sc-dast session login --ssc-url $SSC_URI -t $SSC_TOKEN --session github-actions
+        fcli sc-dast session login --ssc-url $SSC_URI -t $SSC_TOKEN --ssc-session github-actions
       env:
         SSC_URI: ${{ inputs.ssc_url }}
         SSC_TOKEN: ${{ inputs.ssc_token }}
@@ -50,11 +50,11 @@ runs:
       id: scdast-scan
       shell: bash
       run: |
-        fcli sc-dast scan start -n "$SCAN_NAME" -s $SETTINGS_ID --store curScan --session github-actions
+        fcli sc-dast scan start -n "$SCAN_NAME" -s $SETTINGS_ID --store curScan --ssc-session github-actions
         echo "scdast_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
         if [ $DO_WAIT ]
         then
-            fcli sc-dast scan wait-for ::curScan:: --session github-actions
+            fcli sc-dast scan wait-for ::curScan:: --ssc-session github-actions
         fi    
       env:
         SCAN_NAME: ${{ inputs.scan_name }}
@@ -64,4 +64,4 @@ runs:
     - name: Logout
       shell: bash
       run: |
-        fcli sc-dast session logout --no-revoke-token --session github-actions
+        fcli sc-dast session logout --no-revoke-token --ssc-session github-actions

@@ -36,9 +36,7 @@ runs:
     - name: Login
       shell: bash
       run: |
-        #fcli ssc session login --url $SSC_URI -t $SSC_TOKEN --session github-actions
-        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
-        fcli ssc session login --url $SSC_URI -t $SSC_TOKEN -k
+        fcli ssc session login --url $SSC_URI -t $SSC_TOKEN -k --ssc-session github-actions
       env:
         SSC_URI: ${{ inputs.ssc_url }}
         SSC_TOKEN: ${{ inputs.ssc_token }}
@@ -47,11 +45,8 @@ runs:
       id: verify-security-policy
       shell: bash
       run: |
-        #fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --filtersets "${SSC_FILTER_SET_NAMES}" --session github-actions >> $GITHUB_STEP_SUMMARY
-        #fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --session github-actions
-        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
-        fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --filtersets "${SSC_FILTER_SET_NAMES}" >> $GITHUB_STEP_SUMMARY
-        fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}"
+        fcli ssc action run appversion-summary --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --filtersets "${SSC_FILTER_SET_NAMES}" --ssc-session github-actions >> $GITHUB_STEP_SUMMARY
+        fcli ssc action run check-policy --appversion "${SSC_APP_NAME}:${SSC_APPVER_NAME}" --ssc-session github-actions
       env: 
         SSC_APP_NAME: ${{ inputs.ssc_app_name }}
         SSC_APPVER_NAME: ${{ inputs.ssc_appversion_name }}
@@ -60,7 +55,5 @@ runs:
     - name: Logout
       shell: bash
       run: |
-        #fcli ssc session logout --no-revoke-token --session github-actions
-        # Bug - we need a default session for actions to work currently, delete below and uncomment above when working
-        fcli ssc session logout --no-revoke-token
+        fcli ssc session logout --no-revoke-token --ssc-session github-actions
 
